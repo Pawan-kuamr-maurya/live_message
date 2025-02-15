@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="/socket.io/socket.io.js"> </script>
+ <ul id="allpeopel">
+    
+ </ul>
+    <h1 id="pk">Hello world</h1>
+  <h1>type message</h1>
+  <form action="/" >
+    <input type="text" name="message" id="message">
+    <input type="text" name="id" id="id">
+    <button type="submit" id="submit" >click</button>
+  </form>
+  <div id="allmeaaage">
+
+  </div>
+    <script>var socket = io();
+
+
+
+document.getElementById("submit").addEventListener("click",(e)=>{
+    e.preventDefault();
+    console.log("prevent");
+ let data=e.target.closest('form').children[0].value;
+ 
+ console.log(data+"  "+id);
+ 
+socket.emit("data",{data:data,id:id});
+})
+
+socket.on("newmessage",(msg)=>{
+    let allList = document.getElementById("allmeaaage");
+     let newp = document.createElement("p");
+    newp.innerText = `${msg}`;
+allList.append(newp);
+})
+  socket.on("newadd",(msg)=>{
+      let allList = document.getElementById("allpeopel");
+     let newp = document.createElement("p");
+    newp.innerText = `${msg}`;
+allList.append(newp);
+
+
+ }  )
+
+    </script>
+</body>
+</html>

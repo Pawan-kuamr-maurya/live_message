@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+      .allform {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4; /* Light background for contrast */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    margin: 0; /* Remove default margin */
+}
+
+form {
+    background-color: #ffffff; /* White background for the form */
+    padding: 30px;
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Enhanced shadow for depth */
+    width: 350px; /* Fixed width for the form */
+    text-align: center; /* Center elements */
+}
+
+input[type="text"],
+input[type="password"] {
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Add box-shadow transition */
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border-color: #007bff; /* Blue border on focus */
+    outline: none; /* Remove default outline */
+  
+}
+
+.valid {
+    box-shadow: 3px 3px 5px green; /* Green shadow for valid inputs */
+}
+
+.invalid {
+    box-shadow: 3px 3px 5px red; /* Red shadow for invalid inputs */
+}
+
+button {
+    background-color: #007bff; /* Primary button color */
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    transition: background-color 0.3s, transform 0.2s; /* Button hover effects */
+}
+
+button:hover:not(:disabled) {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: translateY(-2px); /* Slight lift effect on hover */
+}
+
+button:disabled {
+    background-color: lightgray; /* Disabled button color */
+    cursor: not-allowed; /* Indicate button is not clickable */
+}
+
+a {
+    display: inline-block; /* Center the link */
+    margin-top: 15px; /* Space above the link */
+    text-decoration: none; /* Remove underline */
+    color: #007bff; /* Link color */
+    font-size: 14px; /* Font size for link */
+    transition: color 0.3s; /* Change color on hover */
+}
+
+a:hover {
+    color: #0056b3; /* Darker color on link hover */
+}
+.login a{
+    font-size: 20px;
+  align-self: baseline;
+}
+
+    </style>
+</head>
+<body>
+  <div class="login">  <a href="/login">login</a>  Click here to login</div>
+    <div class="allform">
+        <form action="/" method="post">
+            <input type="text" name="name" id="name" placeholder="Name">
+            <input type="text" name="username" id="email" placeholder="Email">
+            <input type="password" name="password" id="password" placeholder="Password">
+            <input type="password" name="re_type_password" id="re_type_password" placeholder="RetypePassword">
+            <button type="submit" id="submit">click her</button>
+        </form>
+    </div>
+   
+    
+    <script>
+
+const passwordInput = document.getElementById('password');
+        const retypePasswordInput = document.getElementById('re_type_password');
+        const submitButton = document.getElementById('submit');
+
+        function validatePasswords() {
+            const password = passwordInput.value;
+            const retypePassword = retypePasswordInput.value;
+
+            if (password === retypePassword && password !== "") {
+                retypePasswordInput.classList.remove('invalid');
+                retypePasswordInput.classList.add('valid');
+                submitButton.disabled = false; // Enable the submit button
+            } else {
+                retypePasswordInput.classList.remove('valid');
+                retypePasswordInput.classList.add('invalid');
+                submitButton.disabled = true; // Disable the submit button
+            }
+        }
+
+        passwordInput.addEventListener('input', validatePasswords);
+        retypePasswordInput.addEventListener('input', validatePasswords);
+    
+    </script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+     body {
+  font-family: 'Arial', sans-serif; /* A more common and readable font */
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4; /* Light background */
+  color: #333;
+}
+
+.fullarea {
+  display: flex;
+  height: 80vh; /* Give it more height */
+  margin: 20px;
+  border-radius: 10px;
+  overflow: hidden; /* Prevent content from overflowing rounded corners */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  background-color: white; /* Content background */
+}
+
+.leftaarea {
+  width: 25%; /* Slightly wider left area */
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #eee; /* Light gray background for left area */
+}
+
+.detail {
+  display: flex;
+  justify-content: space-between; /* Align items to the start and end */
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.detail h1 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.detail form {
+  margin: 0; /* Remove default form margins */
+}
+
+.detail button {
+  background-color: #d32f2f; /* Red logout button */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.detail button:hover {
+  background-color: #b71c1c; /* Darker red on hover */
+}
+
+.rightarea {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  padding: 20px;
+}
+
+#selecteduser {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 2rem;
+  margin-bottom: 15px;
+  color: #555;
+}
+
+#allchat {
+  flex-grow: 1;
+  overflow-y: auto; /* Changed to auto for vertical scroll */
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin-bottom: 10px;
+}
+
+#allchat > div {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+#allchat > div:last-child {
+  border-bottom: none;
+}
+
+.inpurchatforperson {
+  display: flex;
+}
+
+#message {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+#send {
+  background-color: #4caf50; /* Green send button */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-left: 10px;
+}
+
+#send:hover {
+  background-color: #388e3c; /* Darker green on hover */
+}
+
+.allpersonavalable {
+  overflow-y: auto;
+  height: 100%;
+  padding: 10px;
+}
+
+.allpersonavalable button {
+  border: none;
+  background-color: #007bff; /* Blue button */
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin: 5px;
+  cursor: pointer;
+  width: 100%; /* Make buttons full width */
+  text-align: left; /* Align text to the left */
+  transition: background-color 0.2s;
+}
+
+
+.allpersonavalable button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+.greenbtn{
+  background-color: #5df337;
+}
+.right{
+ 
+  float: right;
+}
+/* Remove debugging borders */
+* {
+  border: none;
+}
+
+.allpersonavalable .new_message{
+  background-color: #1eff00;
+}
+
+    </style>
+</head>
+<body>
+<div class="fullarea">
+  <div class="leftaarea">
+    <div class="detail">  <h1 ><%=user.name %></h1><form action="/logout" method="get"><button type="submit">logout</button></form></div>
+  <div class="allpersonavalable">
+    <%alluser.forEach(element => { %>
+    
+      <% if(String(element._id) !== String(user._id))  {%>
+          <button  class="alluser " id="<%=element._id%>" name="selecteuser" value=<%=element._id%>  ><%=element.name %></button>
+          <%  }%>
+         
+      <% }); %> 
+    </div>
+  </div>
+   
+   
+<div class="rightarea">
+  <div id="selecteduser"><%= selecteduser.name%></div>
+  
+  <div id="allchat">
+
+  </div>
+<div class="inpurchatforperson">
+  <input  type="text" name="message" id="message" style="flex-grow: 1;">
+  <button type="button" id="send">send</button> 
+</div>
+  
+</div>
+</div>
+ 
+    
+  
+   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js" integrity="sha512-tWHlutFnuG0C6nQRlpvrEhE4QpkG1nn2MOUMWmUeRePl4e3Aki0VB6W1v3oLjFtd0hVOtRQ9PHpSfN6u6/QXkQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/socket.io/socket.io.js"> </script>
+    <script>
+      var socket = io();
+let currentSocketId = null; // Store the current socket ID here
+
+socket.on('connect', () => {
+  console.log("Socket connected");
+  // currentSocketId = socket.id; // DO NOT USE socket.id DIRECTLY from here - wait for the server
+  //console.log("Initial Socket ID: " + socket.id); // This might be outdated on refresh
+});
+
+// RECEIVE THE SOCKET ID FROM THE SERVER
+socket.on("socketIdUpdate", (socketId) => {
+  currentSocketId = socketId;
+  console.log("Updated Socket ID from server: " + currentSocketId);
+});
+
+socket.on('disconnect', () => {
+  console.log("Socket disconnected");
+  currentSocketId = null; // Clear the socket ID on disconnect
+});
+
+
+socket.on("newmessage", (msg) => {
+   console.log(msg);
+  // console.log(currentSocketId);
+ 
+  //Use currentSocketId for comparison NOT socket.id
+  if ( msg.msg.from == current_selected_person) { 
+    console.log( msg.rec_socketid);
+    console.log(current_selected_person);
+    
+    console.log("same");
+
+    let perticularchat = document.createElement("div");
+  perticularchat.innerHTML = msg.msg.message;
+  allchat.append(perticularchat);
+
+  var objDiv = document.getElementById("allchat");
+  objDiv.scrollTop = objDiv.scrollHeight;
+   }else{
+
+ //let d=document.getElementById(String(msg.senderid)).classList.add("new_message")
+
+
+   }
+     
+      
+  // }else{
+
+  //   // let button = document.querySelector(`button[value=`${msg.senderid}`]`);
+  //   // button.classList.add("greenbtn")
+
+  // }
+// console.log(msg.msg);
+
+  
+
+});
+        
+        let data_for_send = {
+   message:null,
+   recever_id:null,
+   rcever_socketid:null
+};
+let all_current_chat=null;
+let current_chatid=null;
+let currentuserid=`<%=user.id %>`;
+let current_selected_person=null;
+
+       let alluser= document.getElementsByClassName("alluser");
+       let selectrduser =document.getElementById("selecteduser");
+       let allchat=   document.getElementById("allchat")
+       console.log(alluser);
+      for (let index = 0; index < alluser.length; index++) {
+      alluser[index].addEventListener("click",(e)=>{
+        current_selected_person=e.target.value;
+        // console.log(e.target.value);
+        $.get(`/selected/${e.target.value}`, (data, status) => {
+         // document.getElementById(String(e.target.value)).classList.remove("new_message");
+            allchat.innerHTML='';
+            selectrduser.innerText=data.presondata.name  ;
+            data_for_send.recever_id=data.presondata._id;
+            data_for_send.rcever_socketid=data.presondata.socket_id;
+             console.log("other sicket id " +data.presondata.socket_id);
+             
+             
+            //if no chat return then fill with null and if there is some chat fill with data
+            all_current_chat = (data.allchat && data.allchat[0] && data.allchat[0].chat) ? data.allchat[0].chat : null;
+            current_chatid = (data.allchat && data.allchat[0] && data.allchat[0]._id) ? data.allchat[0]._id : null;
+   console.log(current_chatid);
+   
+  
+            if(all_current_chat!=null) { 
+      for (let index = 0; index < all_current_chat.length; index++) {
+            const element = all_current_chat[index]; 
+          
+            
+            let perticularchat= document.createElement("div");
+            let inner= document.createElement("div");
+            inner.innerHTML=element.message;
+            allchat.append(perticularchat)
+            perticularchat.append(inner)
+            // console.log(element.from);
+            // console.log(currentuserid);
+            if(String(element.from) === String(currentuserid)){
+                inner.classList.add("right");
+               
+                
+                
+            }
+         }}
+
+             
+            });
+      })} 
+
+  
+ document.getElementById("message").addEventListener("input",(e)=>{data_for_send.message=e.target.value;  })     
+ document.getElementById("send").addEventListener("click",(e)=>{
+    console.log(data_for_send);
+    $.post("/message", data_for_send)
+    .done(function(response) {
+       console.log('Request success:', response);
+       
+       //function geting respond from server
+       let perticularchat= document.createElement("div");
+            let inner= document.createElement("div");
+            inner.innerHTML=response.msg.message;
+           
+            allchat.append(perticularchat)
+            perticularchat.append(inner)
+            // console.log(element.from);
+            // console.log(currentuserid);
+           // if(String(response.from) === String(currentuserid)){}
+                inner.classList.add("right");
+               
+                
+                
+            
+            document.getElementById("message").value='';
+//yaha pe responce jo hai hai vo pura message hai with id
+        
+           
+            socket.emit('newmessage', {msg:response.msg,recever_soc:response.rec_socketid});
+       
+    })
+    .fail(function(xhr, status, error) {
+        console.log('Request failed:', error);
+        // Handle error here
+    })
+    .always(function() {
+        console.log('Request completed');
+    });
+     
+
+    
+ }) 
+
+
+ 
+
+    </script>
+</body>
+</html>
